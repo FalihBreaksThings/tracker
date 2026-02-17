@@ -25,6 +25,9 @@ COPY . .
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
 
+# 🔥 Remove any cached Laravel config
+RUN rm -rf bootstrap/cache/*.php
+
 # Set permissions
 RUN chown -R www-data:www-data storage bootstrap/cache
 
@@ -33,6 +36,4 @@ RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available
 
 EXPOSE 80
 
-# Run migrations then start Apache
-CMD sh -c "php artisan config:clear && php artisan cache:clear && php artisan config:cache && php artisan migrate --force && apache2-foreground"
-
+CMD ["apache2-foreground"]
