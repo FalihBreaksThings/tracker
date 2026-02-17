@@ -33,6 +33,8 @@ RUN chown -R www-data:www-data storage bootstrap/cache
 
 # Change Apache document root to public
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
+#Run migrations
+RUN php artisan migrate --force
 
 EXPOSE 80
 
