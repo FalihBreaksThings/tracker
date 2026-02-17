@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
+    libpq-dev \
     zip
 
 # Install PHP extensions
@@ -32,5 +33,5 @@ RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available
 
 EXPOSE 80
 
-# 🔥 Create DB and run migrations when container starts
-CMD sh -c "mkdir -p database && touch database/database.sqlite && php artisan migrate --force && apache2-foreground"
+# Run migrations then start Apache
+CMD sh -c "php artisan migrate --force && apache2-foreground"
