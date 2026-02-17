@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     zip
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
+RUN docker-php-ext-install pdo pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
@@ -22,18 +22,25 @@ WORKDIR /var/www/html
 # Copy project files
 COPY . .
 
+# Create SQLite database file
+RUN mkdir -p database \
+    && touch database/database.sqlite
+
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader
 
+# Run migrations
+RUN php artisan migrate --force
+
 # Set permissions
-RUN chown -R www-data:www-data storage bootstrap/cache
+RUN chown -R www-data:www-data storage bootstrap/cache database
 
 # Change Apache document root to public
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 
-EXPOSE 10000
+EXPOSE 80
 
 CMD ["apache2-foreground"]
