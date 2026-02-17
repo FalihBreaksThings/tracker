@@ -36,4 +36,5 @@ RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available
 
 EXPOSE 80
 
-CMD ["apache2-foreground"]
+CMD sh -c "printenv | grep DB_ && apache2-foreground"
+
